@@ -8,6 +8,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.AsyncTask;
 
+import android.util.ArrayMap;
 import android.util.Log;
 import android.view.animation.Animation;
 
@@ -27,6 +28,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 
 import static android.content.ContentValues.TAG;
 
@@ -38,6 +40,11 @@ import static android.content.ContentValues.TAG;
 public class XsSplashHelper {
 
     private static XsSplashView xsSplashView;
+
+    private static int newversion;
+    private static int StartPicture_switch;
+    private static int selectPicture;
+    static ArrayMap<String,String> StartPicture = new ArrayMap<>();
 
     private XsSplashHelper(){}
 
@@ -164,34 +171,19 @@ public class XsSplashHelper {
 
         @Override
         protected Integer doInBackground(String... urls) {
-            URL imgUrl;
             Bitmap bitmap;
             InputStream is = null;
             BufferedOutputStream bos = null;
             try {
-                imgUrl = new URL(urls[0]);
-                HttpURLConnection urlConn = (HttpURLConnection) imgUrl.openConnection();
-                // 设置连接主机超时时间
-                urlConn.setConnectTimeout(5 * 1000);
-                //设置从主机读取数据超时
-                urlConn.setReadTimeout(5 * 1000);
-                urlConn.setDoInput(true);
-                urlConn.setRequestMethod("GET");
-                urlConn.connect();
-                if (urlConn.getResponseCode() == 200) {
-                    // 获取返回的数据
-                    is = urlConn.getInputStream();
-                    Log.e(TAG, "Get方式请求成功，result--->" + is);
-                } else {
-                    Log.e(TAG, "Get方式请求失败:"+ urlConn.getResponseCode());
-                }
-                is = urlConn.getInputStream();
-
-
+                is = getInputStream(urls[0]);
 
                 String result = InputStream2String(is);
+                Log.d(TAG, "doInBackground: result "+ result);
 
-                getJson(result);
+                parseJson(result);
+
+                Log.d(TAG, "doInBackground: imgUrl:" + StartPicture.get("imgUrl"));
+                is = getInputStream(StartPicture.get("imgUrl"));
 
                 bitmap = BitmapFactory.decodeStream(is);
 
@@ -200,7 +192,7 @@ public class XsSplashHelper {
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 80, bos);
 
                 SharedPreferences.Editor editor = activity.getSharedPreferences("splashSP", Context.MODE_PRIVATE).edit();
-                editor.putString("splashLink", urls[1]);
+                editor.putString("splashLink", StartPicture.get("url"));
                 editor.apply();
                 
             } catch (MalformedURLException e) {
@@ -227,14 +219,64 @@ public class XsSplashHelper {
             return 0;
         }
 
-        private void getJson(String result) {
+        private InputStream getInputStream(String s) {
+            URL url = null;
+            InputStream is = null;
+            try {
+                url = new URL(s);
+                HttpURLConnection urlConn = (HttpURLConnection) url.openConnection();
+                // 设置连接主机超时时间
+                urlConn.setConnectTimeout(5 * 1000);
+                //设置从主机读取数据超时
+                urlConn.setReadTimeout(5 * 1000);
+                urlConn.setDoInput(true);
+                urlConn.setRequestMethod("GET");
+                urlConn.connect();
+                if (urlConn.getResponseCode() == 200) {
+                    // 获取返回的数据
+                    is = urlConn.getInputStream();
+                    Log.e(TAG, "Get方式请求成功，result--->" + is);
+                } else {
+                    Log.e(TAG, "Get方式请求失败:"+ urlConn.getResponseCode());
+                }
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return is;
+        }
+
+
+        private void parseJson(String result) {
             try {
                 JSONArray json = new JSONArray(result);
                 for(int i=0;i<json.length();i++)
                 {
                     JSONObject jb=json.getJSONObject(i);
-                    Log.d("AAA", jb.getString("newversion"));
-                    Log.d("AAA",String.valueOf(json.length()));
+                    if(jb.has("newVersion")){
+                    Log.d("newVersion", jb.getString("newVersion"));
+                    newversion = jb.getInt("newVersion");}
+                    if(jb.has("StartPicture_switch")){
+                        StartPicture_switch = jb.getInt("StartPicture_switch");
+                    Log.d("StartPicture_switch", jb.getString("StartPicture_switch"));}
+                    if(jb.has("selectPicture")){
+                        selectPicture = jb.getInt("selectPicture");
+                    }
+                    if(jb.has("StartPicture")) {
+                        JSONArray innerjba = jb.getJSONArray("StartPicture");
+                        if(selectPicture < innerjba.length()) {
+                            JSONObject innerjb = innerjba.getJSONObject(selectPicture);
+
+                            Log.d("name", innerjb.getString("name"));
+                            Log.d("imgUrl", innerjb.getString("imgUrl"));
+                            Log.d("url", innerjb.getString("url"));
+
+                            StartPicture.put("name", innerjb.getString("name"));
+                            StartPicture.put("imgUrl", innerjb.getString("imgUrl"));
+                            StartPicture.put("url", innerjb.getString("url"));
+                        }
+                    }
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
