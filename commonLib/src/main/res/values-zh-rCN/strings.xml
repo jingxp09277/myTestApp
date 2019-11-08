@@ -1,0 +1,10 @@
+<resources>
+    <string name="cancel">取消</string>
+    <string name="go_setting_for_permission">请到设置给予权限</string>
+    <string name="open_gps">请打开位置开关</string>
+    <string name="dialog_prompt">提示:</string>
+    <string name="dialog_content">当前应用缺少必要权限。\n    请点击 \"设置\"-\"权限\"-打开所需权限。</string>
+    <string name="setting">设置</string>
+    <string name="please_open_bluetooth">请先打开蓝牙</string>
+    <string name="recorder_is_unusual">录音机无法正常工作</string>
+</resources>

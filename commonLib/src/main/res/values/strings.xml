@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name" translatable="false">BleAideLib</string>
+    <string name="cancel">Cancel</string>
+    <string name="go_setting_for_permission">Please go to the settings to give permission</string>
+    <string name="open_gps">Please open the GPS</string>
+    <string name="dialog_prompt">Prompt:</string>
+    <string name="dialog_content">The current application lacks the necessary permissions. \n Please click \"Settings\"-\"Permissions\"- to open the required permissions.</string>
+    <string name="setting">Setting</string>
+    <string name="please_open_bluetooth">Please turn on the Bluetooth first</string>
+    <string name="recorder_is_unusual">The recorder is not working properly</string>
+</resources>

@@ -1,0 +1,86 @@
+//此文件为自动生成 原始文件在libs项目下local文件夹中 依据文件是否存在和大小是否相等来决定是否复制和替换。通俗讲 修改本文件无效 修改原始文件但没有改变文件大小也无效
+ext {
+    Properties properties = new Properties()
+    FileReader reader = new FileReader("${rootDir.parent}/libs/local/keystore")
+    properties.load(reader)
+    def keystoreFilepath = properties.getProperty("keystore.path")
+    if (keystoreFilepath) {
+        STOREFILE = file(keystoreFilepath)
+        STOREPASSWORD = properties.getProperty("keystore.password")
+        KEYALIAS = properties.getProperty("keystore.alias")
+        KEYPASSWORD = properties.getProperty("keystore.alias_password")
+    }
+    reader.close()
+    
+    reader = new FileReader("${rootDir.parent}/libs/local/properties")
+    properties.load(reader)
+    C_MINSDKVERSION = properties.getProperty("minsdkversion")
+    C_TARGETSDKVERSION = properties.getProperty("targetsdkversion")
+    C_COMPILESDKVERSION = Integer.valueOf(properties.getProperty("compilesdkversion"))
+    C_COM_LIB = properties.getProperty("com_lib")
+    C_BLEFAST_LIB = properties.getProperty("blefast_lib")
+    reader.close()
+    
+    C_VERSIONCODE = gitVersionCode()
+    C_VERSIONNAME = gitVersionTag() + "." + C_VERSIONCODE
+}
+ext.deleteApk = { variant ->
+    File outputdir = variant.getPackageApplicationProvider().get().outputs.files[1]
+    File[] childs = outputdir.listFiles()
+    if (outputdir.exists() && childs.size() > 0) {
+        for (File f : childs) {
+            f.delete()
+        }
+    }
+}
+
+def static buildTime() {
+    return new Date().format("yyMMddHHmm", TimeZone.getTimeZone("Asia/Shanghai"))
+}
+
+ext.generateAppName = { variant, rootDir ->
+    return "-${variant.buildType.name}-V${variant.versionName}-${generateGitInfo(rootDir)}-${buildTime()}.apk"
+}
+
+def static generateGitInfo(rootDir) {
+    def gitDir = new File("${rootDir}/.git")
+    if (!gitDir.isDirectory()) {
+        return 'NOVC'
+    }
+
+    def cmd = 'git log --pretty=format:%h -1'
+    def gitCommit = cmd.execute().text.trim()
+    return gitCommit
+}
+
+static def gitVersionCode() {
+    int code = 1
+    def cmd = 'git rev-list HEAD --count'
+    try {
+        code = cmd.execute().text.trim().toInteger()
+    } catch (Exception e) {
+        println(e.toString())
+    }
+    return code
+}
+
+static def gitVersionTag() {
+    def cmd = 'git tag --sort=-taggerdate'
+    def version = cmd.execute().text.trim()
+    def pattern = "V\\d+.\\d+"
+    def matcher = version =~ pattern
+    if (matcher) {
+        version = version.substring(matcher.start() + 1, matcher.end())
+    } else {
+        version = "0.00"
+    }
+    return version
+}
+
+allprojects {
+    repositories {
+        maven {
+            url '../../libs/Maven'
+        }
+    }
+}

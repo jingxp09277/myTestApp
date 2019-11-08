@@ -1,0 +1,52 @@
+apply plugin: 'com.android.library'
+apply from: rootDir.getPath() + '/constant.gradle'
+apply plugin: 'maven'
+
+android {
+    compileSdkVersion C_COMPILESDKVERSION
+
+    defaultConfig {
+        minSdkVersion C_MINSDKVERSION
+        targetSdkVersion C_TARGETSDKVERSION
+        versionCode C_VERSIONCODE
+        versionName C_VERSIONNAME
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+        }
+        debug {
+            debuggable true
+        }
+    }
+
+    libraryVariants.all { variant ->
+        variant.outputs.all { output ->
+            output.apkData.outputFileName = project.name + "-" +
+                    (defaultConfig.versionCode + 1) +
+                    ".aar"
+        }
+/*        if (variant.buildType.name != "debug") {
+            variant.getPackageLibraryProvider().get().destinationDir = new File(project.rootDir.absolutePath + "/AAR")
+        }*/
+    }
+
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository(url: uri('../Maven'))
+            pom.project {
+                groupId 'com.aninc.lib'
+                artifactId 'common'
+                version C_VERSIONCODE + 1
+            }
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'androidx.appcompat:appcompat:1.1.0'
+}
