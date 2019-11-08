@@ -48,6 +48,12 @@ public class XsSplashView extends FrameLayout {
     private ImageView ivSplash;
     private OnClickSplashListener onClickSplashListener;
     private Activity context;
+    private boolean isShow = false;
+
+
+    public boolean isShow() {
+        return isShow;
+    }
 
     public XsSplashView(@NonNull Activity context) {
         super(context);
@@ -118,6 +124,7 @@ public class XsSplashView extends FrameLayout {
             return;
         if (!isNeedToContinue())
             return;
+        isShow = true;
 
         this.addView(tvCountDown,setTextViewData(context));
 

@@ -189,12 +189,18 @@ public class XsSplashHelper {
 
                 File localFile = new File(activity.getFilesDir().getAbsolutePath().toString() + "/splash.jpg");
                 bos = new BufferedOutputStream(new FileOutputStream(localFile));
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 80, bos);
+                if(bitmap!= null) {
+                    Log.d(TAG, "doInBackground: bitmap is not null");
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 80, bos);
+                }else{
+                    Log.d(TAG, "doInBackground: bitmap is null");
+                    localFile.delete();
+                }
 
                 SharedPreferences.Editor editor = activity.getSharedPreferences("splashSP", Context.MODE_PRIVATE).edit();
                 editor.putString("splashLink", StartPicture.get("url"));
                 editor.apply();
-                
+
             } catch (MalformedURLException e) {
                 e.printStackTrace();
             } catch (IOException e) {

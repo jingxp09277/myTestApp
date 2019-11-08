@@ -3,6 +3,7 @@ package com.example.myapplication;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.ClipboardManager;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -23,12 +24,29 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         registerClipEvents();
-        moveTaskToBack(true);
+
 
 //        CircleSmartImageView test=(CircleSmartImageView) findViewById(R.id.test);
         //test.setImageUrl("http://b.hiphotos.baidu.com/baike/w%3D268%3Bg%3D0/sign=92e00c9b8f5494ee8722081f15ce87c3/29381f30e924b899c83ff41c6d061d950a7bf697.jpg");
 //        test.setImageUrl("http://a.hiphotos.baidu.com/image/pic/item/838ba61ea8d3fd1fc9c7b6853a4e251f94ca5f46.jpg");
     }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        //moveTaskToBack(true);
+    }
+
+    @Override
+    public void onBackPressed() {//重写的Activity返回
+        /*//设置点击物理返回键后应用后台运行而不是退出
+        Intent intent = new Intent();
+        intent.setAction("android.intent.action.MAIN");
+        intent.addCategory("android.intent.category.HOME");
+        startActivity(intent);*/
+        moveTaskToBack(true);
+    }
+
 
     @Override
     protected void onDestroy() {
