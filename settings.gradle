@@ -1,2 +1,2 @@
-include ':app', ':commonLib'
+include ':app', ':commonLib', ':banner'
 rootProject.name='My Application'
